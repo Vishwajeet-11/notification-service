@@ -1,0 +1,25 @@
+{
+  "name": "notification-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bull": "^4.16.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "firebase-admin": "^13.2.0",
+    "mongoose": "^8.13.1",
+    "nodemailer": "^6.10.0",
+    "nodemon": "^3.1.9",
+    "redis": "^4.7.0",
+    "twilio": "^5.5.1"
+  }
+}
