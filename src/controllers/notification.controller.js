@@ -1,6 +1,5 @@
+import { producer } from "../kafka.js";
 import Notification from "../models/notification.model.js";
-import notificationQueue from "../queues/notification.queue.js";
-import sendEmail from "../services/email.service.js";
 
 export const sendNotification = async (req, res) => {
     try{
@@ -27,11 +26,11 @@ export const createNotification = async (req, res) => {
     try {
         console.log("🔹 Request received:", req.body);
 
-        const { email, type, message } = req.body;
+        const { email, phone, type, message } = req.body;
 
-        if (!email || !type || !message) {
+        if (!type || !message) {
             console.log("🔸 Missing fields in request");
-            return res.status(400).json({ error: "Email, type, and message are required" });
+            return res.status(400).json({ error: "Type and message are required" });
         }
 
         // Save the notification in the database
@@ -39,14 +38,26 @@ export const createNotification = async (req, res) => {
         await notification.save();
         console.log("✅ Notification saved successfully:", notification);
 
-        // **Trigger Email Notification**
-        if (type === "email") {
-            console.log(`📧 Sending email to: ${email}`);
-            await sendEmail(email, "Notification Alert", message);
-            console.log("✅ Email sent successfully");
-        }
+        // Publish to Kafka instead of sending directly
+        await producer.connect();
+        await producer.send({
+            topic: 'notifications',
+            messages: [{
+                valu: JSON.stringify({
+                    type,
+                    email,
+                    phone,
+                    message
+                })
+            }]
+        });
+        console.log("📤 Notification event published to Kafka");
 
-        res.status(201).json({ success: true, data: notification });
+        res.status(201).json({ 
+            success: true, 
+            message: "Notification queued for processing",
+            data: notification 
+        });
     } catch (error) {
         console.error("❌ Notification Error:", error);
         res.status(500).json({ success: false, error: error.message });

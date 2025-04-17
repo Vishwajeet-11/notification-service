@@ -1,7 +1,8 @@
 import mongoose from "mongoose"
 
 const notificationSchema = new mongoose.Schema({
-    email: {type: String, required: true},
+    email: {type: String},
+    phone: {type: String},
     type: {type: String, enum : ["email", "sms", "push"], required: true},
     message: {type: String, required: true},
     status: {type: String, enum: ["pending", "sent", "failed"], default : "pending"},
